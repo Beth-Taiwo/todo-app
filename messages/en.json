@@ -1,0 +1,39 @@
+{
+  "nav.open": "Open",
+  "nav.completed": "Completed",
+  "nav.archived": "Archived",
+
+  "taskForm.heading": "New task",
+  "taskForm.inputPlaceholder": "What needs to be done?",
+  "taskForm.inputAriaLabel": "Task title",
+  "taskForm.submitButton": "Add",
+  "taskForm.validationRequired": "Title is required",
+  "taskForm.validationMaxLength": "Title cannot exceed 120 characters",
+
+  "taskList.emptyOpen": "No open tasks yet — add one above.",
+  "taskList.emptyCompleted": "No completed tasks yet.",
+  "taskList.emptyArchived": "No archived tasks yet.",
+
+  "taskItem.completeButton": "Complete",
+  "taskItem.completeAriaLabel": "Complete task: {title}",
+  "taskItem.editButton": "Edit",
+  "taskItem.editAriaLabel": "Edit task: {title}",
+  "taskItem.archiveButton": "Archive",
+  "taskItem.archiveAriaLabel": "Archive task: {title}",
+  "taskItem.saveButton": "Save",
+  "taskItem.saveAriaLabel": "Save changes to: {title}",
+  "taskItem.cancelButton": "Cancel",
+  "taskItem.cancelAriaLabel": "Cancel editing: {title}",
+  "taskItem.editInputPlaceholder": "Task title",
+  "taskItem.restoreButton": "Restore",
+  "taskItem.restoreAriaLabel": "Restore task: {title}",
+
+  "confirmAction.question": "Archive this task?",
+  "confirmAction.confirmButton": "Yes, archive",
+  "confirmAction.cancelButton": "Cancel",
+  "confirmAction.ariaLabel": "Confirm archive",
+
+  "pages.open": "Open Tasks",
+  "pages.completed": "Completed Tasks",
+  "pages.archived": "Archived Tasks"
+}

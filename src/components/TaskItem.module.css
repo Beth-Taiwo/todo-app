@@ -1,0 +1,86 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.title {
+  flex: 1;
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+.editInput {
+  flex: 1;
+  font-size: var(--text-base);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.editInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.error {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin: var(--space-1) 0 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-height: var(--min-tap-target);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  border: none;
+}
+
+.primaryButton {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.secondaryButton {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-border);
+}
+
+.dangerButton {
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+}
+
+.dangerButton:hover {
+  background-color: var(--color-danger);
+  color: #fff;
+}
