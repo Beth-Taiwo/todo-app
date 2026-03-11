@@ -136,6 +136,19 @@ describe("taskReducer — RESTORE_TASK", () => {
     expect(state[0].status).toBe("open");
     expect(state[0].archivedAt).toBeNull();
   });
+
+  it("restores a completed task to open and clears completedAt", () => {
+    const completed = makeTask({
+      status: "completed",
+      completedAt: "2026-03-11T11:00:00.000Z",
+    });
+    const state = taskReducer([completed], {
+      type: "RESTORE_TASK",
+      payload: { id: "task-1" },
+    });
+    expect(state[0].status).toBe("open");
+    expect(state[0].completedAt).toBeNull();
+  });
 });
 
 describe("taskReducer — START_EDIT / CANCEL_EDIT", () => {

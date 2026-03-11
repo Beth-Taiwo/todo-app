@@ -53,9 +53,9 @@ export function taskReducer(state: Task[], action: TaskAction): Task[] {
 
     case "RESTORE_TASK":
       return state.map((task) => {
-        if (task.id !== action.payload.id || task.status !== "archived")
+        if (task.id !== action.payload.id || task.status === "open")
           return task;
-        return { ...task, status: "open", archivedAt: null };
+        return { ...task, status: "open", completedAt: null, archivedAt: null };
       });
 
     case "START_EDIT":
