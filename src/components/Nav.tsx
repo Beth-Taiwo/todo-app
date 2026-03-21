@@ -7,10 +7,19 @@ import { t } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const AUTH_ROUTES = new Set([
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+]);
+
 export function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const { authState, logout } = useAuthContext();
+
+  if (AUTH_ROUTES.has(pathname)) return null;
 
   async function handleLogout() {
     await logout();

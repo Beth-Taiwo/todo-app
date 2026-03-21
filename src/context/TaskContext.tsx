@@ -14,6 +14,7 @@ import { loadTasks, saveTasks } from "@/lib/taskStorage";
 import { createTask, getTasks, updateTask } from "@/lib/taskService";
 import { useAuthContext } from "@/context/AuthContext";
 import { t } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 
 const IMPORT_DONE_KEY = "todo-app:imported";
 
@@ -146,15 +147,18 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   const confirmImport = useCallback(async () => {
     if (authState.status !== "authenticated") return;
     const userId = authState.user.uid;
-    for (const task of localAnonymousTasks) {
+    // Mark done and close modal immediately — prevents the useEffect from
+    // re-triggering the prompt if Firestore listener fires during the import.
+    localStorage.setItem(IMPORT_DONE_KEY, "true");
+    setImportPromptVisible(false);
+    const tasksToImport = localAnonymousTasks;
+    setLocalAnonymousTasks([]);
+    for (const task of tasksToImport) {
       await createTask(userId, {
         title: task.title,
         description: task.description,
       });
     }
-    localStorage.setItem(IMPORT_DONE_KEY, "true");
-    setImportPromptVisible(false);
-    setLocalAnonymousTasks([]);
   }, [authState, localAnonymousTasks]);
 
   const declineImport = useCallback(() => {
@@ -183,19 +187,30 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
   return (
     <TaskContext.Provider value={value}>
       {importPromptVisible && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("auth.importPrompt.heading")}
-        >
-          <h2>{t("auth.importPrompt.heading")}</h2>
-          <p>{t("auth.importPrompt.body")}</p>
-          <button onClick={() => void confirmImport()}>
-            {t("auth.importPrompt.confirmButton")}
-          </button>
-          <button onClick={declineImport}>
-            {t("auth.importPrompt.declineButton")}
-          </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("auth.importPrompt.heading")}
+            className="bg-card text-card-foreground mx-4 flex w-full max-w-sm flex-col gap-6 rounded-lg p-4 shadow-lg"
+          >
+            <div>
+              <h2 className="text-lg font-semibold">
+                {t("auth.importPrompt.heading")}
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm">
+                {t("auth.importPrompt.body")}
+              </p>
+            </div>
+            <div className="flex justify-center gap-2">
+              <Button variant="outline" onClick={declineImport}>
+                {t("auth.importPrompt.declineButton")}
+              </Button>
+              <Button onClick={() => void confirmImport()}>
+                {t("auth.importPrompt.confirmButton")}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       {children}

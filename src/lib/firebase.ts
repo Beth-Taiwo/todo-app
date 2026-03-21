@@ -18,9 +18,9 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to Firebase Emulators in development to avoid hitting production
+// Connect to Firebase Emulators only when explicitly opted in via env var
 if (
-  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_USE_EMULATORS === "true" &&
   !(auth as unknown as { emulatorConfig: unknown }).emulatorConfig
 ) {
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });

@@ -8,7 +8,7 @@ import { auth } from "@/lib/firebase";
 import type { AuthError, AuthUser } from "@/types/auth";
 
 // Maps Firebase error codes to i18n message values
-function mapFirebaseError(code: string): AuthError {
+function mapFirebaseError(code: string, detail?: string): AuthError {
   const messages: Record<string, string> = {
     "auth/email-already-in-use": "An account with this email already exists.",
     "auth/invalid-email": "Please enter a valid email address.",
@@ -19,11 +19,15 @@ function mapFirebaseError(code: string): AuthError {
     "auth/invalid-credential": "Incorrect email or password.",
     "auth/too-many-requests":
       "Too many attempts. Please wait a moment and try again.",
+    "auth/operation-not-allowed":
+      "Email/password sign-in is not enabled. Please enable it in Firebase Console.",
   };
-  return {
-    code,
-    message: messages[code] ?? "Something went wrong. Please try again.",
-  };
+  const message =
+    messages[code] ??
+    (detail
+      ? `Session error: ${detail}`
+      : "Something went wrong. Please try again.");
+  return { code, message };
 }
 
 async function mintSessionCookie(idToken: string): Promise<void> {
@@ -32,7 +36,16 @@ async function mintSessionCookie(idToken: string): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken }),
   });
-  if (!res.ok) throw { code: "auth/session-error" };
+  if (!res.ok) {
+    let body: { error?: string; code?: string } = {};
+    try {
+      body = await res.json();
+    } catch {
+      /* ignore */
+    }
+    console.error("[mintSessionCookie] session API error:", res.status, body);
+    throw { code: body.code ?? "auth/session-error", message: body.error };
+  }
 }
 
 function toAuthUser(firebaseUser: {
@@ -65,7 +78,9 @@ export async function register(
     await mintSessionCookie(idToken);
     return toAuthUser(credential.user);
   } catch (err) {
-    throw mapFirebaseError((err as { code?: string }).code ?? "unknown");
+    const e = err as { code?: string; message?: string };
+    console.error("[register] error:", e.code, e.message);
+    throw mapFirebaseError(e.code ?? "unknown", e.message);
   }
 }
 
@@ -79,7 +94,9 @@ export async function login(
     await mintSessionCookie(idToken);
     return toAuthUser(credential.user);
   } catch (err) {
-    throw mapFirebaseError((err as { code?: string }).code ?? "unknown");
+    const e = err as { code?: string; message?: string };
+    console.error("[login] error:", e.code, e.message);
+    throw mapFirebaseError(e.code ?? "unknown", e.message);
   }
 }
 

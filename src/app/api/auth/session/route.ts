@@ -35,12 +35,15 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (err) {
     const code = (err as { code?: string }).code ?? "";
+    console.error("[/api/auth/session] error:", code, err);
     if (code === "auth/argument-error" || code === "auth/invalid-argument") {
-      return NextResponse.json({ error: "Invalid ID token" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid ID token", code },
+        { status: 401 },
+      );
     }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    const message =
+      (err as { message?: string }).message ?? "Internal server error";
+    return NextResponse.json({ error: message, code }, { status: 500 });
   }
 }

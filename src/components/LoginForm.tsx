@@ -25,6 +25,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -32,6 +33,7 @@ export function LoginForm() {
     setSubmitting(true);
     try {
       await login(email, password);
+      setRedirecting(true);
       router.push("/");
     } catch (err) {
       const authErr = err as AuthError;
@@ -40,6 +42,8 @@ export function LoginForm() {
       setSubmitting(false);
     }
   }
+
+  if (redirecting) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
