@@ -6,12 +6,14 @@ const STORAGE_KEY = "todo-app:tasks";
 
 const makeTask = (): Task => ({
   id: "task-1",
+  userId: "",
   title: "Test",
   description: "",
   status: "open",
   createdAt: "2026-03-11T10:00:00.000Z",
   completedAt: null,
   archivedAt: null,
+  updatedAt: "2026-03-11T10:00:00.000Z",
 });
 
 describe("loadTasks", () => {

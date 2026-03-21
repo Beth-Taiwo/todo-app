@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
 import { t } from "@/lib/i18n";
 import styles from "./Nav.module.css";
 
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { authState, logout } = useAuthContext();
+
+  async function handleLogout() {
+    await logout();
+    router.push("/login");
+  }
 
   return (
     <nav className={styles.nav} aria-label="Main navigation">
@@ -31,6 +39,15 @@ export function Nav() {
       >
         {t("nav.archived")}
       </Link>
+      {authState.status === "authenticated" && (
+        <button
+          onClick={handleLogout}
+          aria-label={t("auth.logout.ariaLabel")}
+          className={styles.logoutButton}
+        >
+          {t("auth.logout.button")}
+        </button>
+      )}
     </nav>
   );
 }

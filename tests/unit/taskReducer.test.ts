@@ -4,12 +4,14 @@ import type { Task } from "@/types/task";
 
 const makeTask = (overrides: Partial<Task> = {}): Task => ({
   id: "task-1",
+  userId: "",
   title: "Test task",
   description: "",
   status: "open",
   createdAt: "2026-03-11T10:00:00.000Z",
   completedAt: null,
   archivedAt: null,
+  updatedAt: "2026-03-11T10:00:00.000Z",
   ...overrides,
 });
 

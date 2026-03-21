@@ -1,8 +1,29 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { TaskProvider } from "@/context/TaskContext";
 import TaskList from "@/components/TaskList";
 import TaskForm from "@/components/TaskForm";
+
+vi.mock("@/context/AuthContext", () => {
+  const authState = { status: "unauthenticated" } as const;
+  return {
+    useAuthContext: () => ({
+      authState,
+      register: vi.fn(),
+      login: vi.fn(),
+      logout: vi.fn(),
+      sendPasswordReset: vi.fn(),
+    }),
+  };
+});
+vi.mock("@/lib/firebase", () => ({ auth: {}, db: {} }));
+vi.mock("@/lib/taskService", () => ({
+  createTask: vi.fn(),
+  getTasks: vi.fn(() => () => {}),
+  updateTask: vi.fn(),
+  deleteTask: vi.fn(),
+}));
 
 function App() {
   return (

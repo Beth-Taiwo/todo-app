@@ -2,12 +2,14 @@ export type TaskStatus = "open" | "completed" | "archived";
 
 export interface Task {
   id: string;
+  userId: string; // Firebase Auth uid of the owning user
   title: string;
   description: string;
   status: TaskStatus;
   createdAt: string; // ISO 8601
   completedAt: string | null;
   archivedAt: string | null;
+  updatedAt: string; // ISO 8601 — updated on every write
 }
 
 export interface ValidationResult {

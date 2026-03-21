@@ -4,12 +4,14 @@ import type { Task } from "@/types/task";
 describe("Task contract schema", () => {
   const validTask: Task = {
     id: "abc-123",
+    userId: "user-uid-test",
     title: "Buy groceries",
     description: "Milk and eggs",
     status: "open",
     createdAt: new Date().toISOString(),
     completedAt: null,
     archivedAt: null,
+    updatedAt: new Date().toISOString(),
   };
 
   it("has an id string field", () => {
