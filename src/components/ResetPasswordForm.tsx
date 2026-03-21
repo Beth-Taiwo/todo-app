@@ -6,6 +6,17 @@ import Link from "next/link";
 import { confirmPasswordReset } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { t } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 function validatePassword(password: string): string | null {
   if (password.length < 8) return t("auth.errors.weakPassword");
@@ -25,9 +36,19 @@ export function ResetPasswordForm() {
 
   if (!oobCode) {
     return (
-      <p role="alert" aria-live="assertive">
-        {t("auth.resetPassword.invalidLink")}
-      </p>
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-sm">
+          <CardContent className="pt-6">
+            <p
+              role="alert"
+              aria-live="assertive"
+              className="text-sm text-destructive"
+            >
+              {t("auth.resetPassword.invalidLink")}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -53,57 +74,89 @@ export function ResetPasswordForm() {
 
   if (success) {
     return (
-      <p role="status" aria-live="polite">
-        {t("auth.resetPassword.success")}
-      </p>
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <Card className="w-full max-w-sm">
+          <CardContent className="pt-6">
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-sm text-muted-foreground"
+            >
+              {t("auth.resetPassword.success")}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      aria-label={t("auth.resetPassword.heading")}
-    >
-      <h1>{t("auth.resetPassword.heading")}</h1>
-
-      <div>
-        <label htmlFor="reset-password">
-          {t("auth.resetPassword.passwordLabel")}
-        </label>
-        <input
-          id="reset-password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t("auth.resetPassword.passwordPlaceholder")}
-          aria-describedby={passwordError ? "reset-password-error" : undefined}
-          aria-invalid={passwordError ? "true" : undefined}
-          required
-        />
-        {passwordError && (
-          <span id="reset-password-error" role="alert">
-            {passwordError}
-          </span>
-        )}
-      </div>
-
-      {error && (
-        <p role="alert" aria-live="assertive">
-          {error}
-        </p>
-      )}
-
-      <button type="submit" disabled={submitting}>
-        {submitting
-          ? t("auth.resetPassword.submitting")
-          : t("auth.resetPassword.submitButton")}
-      </button>
-
-      <p>
-        <Link href="/login">{t("auth.forgotPassword.loginLink")}</Link>
-      </p>
-    </form>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>{t("auth.resetPassword.heading")}</CardTitle>
+          <CardDescription>Choose a strong password</CardDescription>
+        </CardHeader>
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          aria-label={t("auth.resetPassword.heading")}
+        >
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-password">
+                {t("auth.resetPassword.passwordLabel")}
+              </Label>
+              <Input
+                id="reset-password"
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t("auth.resetPassword.passwordPlaceholder")}
+                aria-describedby={
+                  passwordError ? "reset-password-error" : undefined
+                }
+                aria-invalid={passwordError ? "true" : undefined}
+                required
+              />
+              {passwordError && (
+                <p
+                  id="reset-password-error"
+                  role="alert"
+                  className="text-sm text-destructive"
+                >
+                  {passwordError}
+                </p>
+              )}
+            </div>
+            {error && (
+              <p
+                role="alert"
+                aria-live="assertive"
+                className="text-sm text-destructive"
+              >
+                {error}
+              </p>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col gap-3">
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting
+                ? t("auth.resetPassword.submitting")
+                : t("auth.resetPassword.submitButton")}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              <Link
+                href="/login"
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                {t("auth.forgotPassword.loginLink")}
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 }

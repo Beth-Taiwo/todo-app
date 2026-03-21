@@ -1,7 +1,7 @@
 "use client";
 
 import { t } from "@/lib/i18n";
-import styles from "./ConfirmAction.module.css";
+import { Button } from "@/components/ui/button";
 
 interface ConfirmActionProps {
   onConfirm: () => void;
@@ -17,25 +17,24 @@ export default function ConfirmAction({
       role="dialog"
       aria-modal="true"
       aria-label={t("confirmAction.ariaLabel")}
-      className={styles.overlay}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className={styles.dialog}>
-        <p className={styles.question}>{t("confirmAction.question")}</p>
-        <div className={styles.actions}>
-          <button
+      <div className="mx-4 w-full max-w-sm rounded-lg border bg-card p-6 shadow-lg">
+        <p className="mb-4 text-sm font-medium">
+          {t("confirmAction.question")}
+        </p>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" type="button" onClick={onCancel}>
+            {t("confirmAction.cancelButton")}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
             type="button"
             onClick={onConfirm}
-            className={styles.confirmButton}
           >
             {t("confirmAction.confirmButton")}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className={styles.cancelButton}
-          >
-            {t("confirmAction.cancelButton")}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

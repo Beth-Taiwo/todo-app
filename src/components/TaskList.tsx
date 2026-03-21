@@ -4,7 +4,6 @@ import { t } from "@/lib/i18n";
 import { useTaskContext } from "@/context/TaskContext";
 import TaskItem from "./TaskItem";
 import type { TaskStatus } from "@/types/task";
-import styles from "./TaskList.module.css";
 
 interface TaskListProps {
   filter: TaskStatus;
@@ -28,14 +27,14 @@ export default function TaskList({ filter }: TaskListProps) {
 
   if (tasks.length === 0) {
     return (
-      <p className={styles.empty}>
+      <p className="py-8 text-center text-sm text-muted-foreground">
         {t(emptyMessages[filter] as Parameters<typeof t>[0])}
       </p>
     );
   }
 
   return (
-    <ul className={styles.list}>
+    <ul className="space-y-2">
       {tasks.map((task) => (
         <TaskItem key={task.id} task={task} />
       ))}

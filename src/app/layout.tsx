@@ -21,7 +21,7 @@ export default function RootLayout({
         <AuthProvider>
           <TaskProvider>
             <Nav />
-            <main>
+            <main className="mx-auto max-w-2xl px-4 py-8">
               <ProtectedShell>{children}</ProtectedShell>
             </main>
           </TaskProvider>
