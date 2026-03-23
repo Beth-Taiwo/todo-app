@@ -6,7 +6,10 @@ import { useTaskContext } from "@/context/TaskContext";
 import { validateTitle } from "@/lib/taskValidation";
 import ConfirmAction from "./ConfirmAction";
 import type { Task } from "@/types/task";
-import styles from "./TaskItem.module.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface TaskItemProps {
   task: Task;
@@ -63,31 +66,30 @@ export default function TaskItem({ task }: TaskItemProps) {
 
   if (isEditing) {
     return (
-      <li className={styles.item}>
-        <input
-          className={styles.editInput}
+      <li className="rounded-lg border bg-card p-4 shadow-sm">
+        <Input
           type="text"
           value={editTitle}
           onChange={(e) => setEditTitle(e.target.value)}
           placeholder={t("taskItem.editInputPlaceholder")}
           aria-label={t("taskItem.editInputPlaceholder")}
+          className="mb-2"
         />
-        {editError && <p className={styles.error}>{editError}</p>}
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.primaryButton}
-            onClick={handleSave}
-          >
+        {editError && (
+          <p className="mb-2 text-sm text-destructive">{editError}</p>
+        )}
+        <div className="flex gap-2">
+          <Button size="sm" type="button" onClick={handleSave}>
             {t("taskItem.saveButton")}
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
             type="button"
-            className={styles.secondaryButton}
             onClick={handleCancel}
           >
             {t("taskItem.cancelButton")}
-          </button>
+          </Button>
         </div>
       </li>
     );
@@ -95,42 +97,70 @@ export default function TaskItem({ task }: TaskItemProps) {
 
   return (
     <>
-      <li className={styles.item}>
-        <span className={styles.title}>{task.title}</span>
-        <div className={styles.actions}>
+      <li
+        className={cn(
+          "flex items-center justify-between gap-3 rounded-lg border bg-card p-4 shadow-sm",
+          task.status !== "open" && "opacity-70",
+        )}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <span
+            className={cn(
+              "truncate text-sm font-medium",
+              task.status === "completed" &&
+                "line-through text-muted-foreground",
+            )}
+          >
+            {task.title}
+          </span>
+          {task.status === "completed" && (
+            <Badge variant="secondary" className="shrink-0">
+              Done
+            </Badge>
+          )}
+          {task.status === "archived" && (
+            <Badge variant="outline" className="shrink-0">
+              Archived
+            </Badge>
+          )}
+        </div>
+        <div className="flex shrink-0 gap-1.5">
           {task.status === "open" && (
             <>
-              <button
+              <Button
                 type="button"
-                className={styles.primaryButton}
+                size="sm"
                 onClick={() => completeTask(task.id)}
               >
                 {t("taskItem.completeButton")}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className={styles.secondaryButton}
+                size="sm"
+                variant="outline"
                 onClick={handleStartEdit}
               >
                 {t("taskItem.editButton")}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className={styles.dangerButton}
+                size="sm"
+                variant="destructive"
                 onClick={() => setShowConfirm(true)}
               >
                 {t("taskItem.archiveButton")}
-              </button>
+              </Button>
             </>
           )}
           {(task.status === "completed" || task.status === "archived") && (
-            <button
+            <Button
               type="button"
-              className={styles.secondaryButton}
+              size="sm"
+              variant="outline"
               onClick={() => restoreTask(task.id)}
             >
               {t("taskItem.restoreButton")}
-            </button>
+            </Button>
           )}
         </div>
       </li>

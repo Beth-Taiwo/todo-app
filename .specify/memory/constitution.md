@@ -1,29 +1,40 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (none) → 1.0.0
-Initial ratification — all placeholders replaced.
+Version change: 1.0.0 → 1.1.0 (MINOR — three new principles added)
 
 Modified principles:
-  (new) I. Radical Simplicity
-  (new) II. Delightful User Experience
-  (new) III. Readability Over Cleverness
-  (new) IV. Test-Driven Development
-  (new) V. Accessibility & Inclusivity
+  (unchanged) I. Radical Simplicity
+  (unchanged) II. Delightful User Experience
+  (unchanged) III. Readability Over Cleverness
+  (unchanged) IV. Test-Driven Development
+  (unchanged) V. Accessibility & Inclusivity
+  (new) VI. Secure Authentication & Authorization
+  (new) VII. User Privacy & Data Protection
+  (new) VIII. Cross-Device Continuity
 
-Added sections:
-  - Code Quality Standards
-  - UX & Interaction Standards
-  - Governance
+Added sections: Principles VI, VII, VIII
 
 Removed sections: none
 
 Templates reviewed:
-  ✅ .specify/templates/plan-template.md — Constitution Check gate aligns with principles
-  ✅ .specify/templates/spec-template.md — User Scenarios & Success Criteria align with UX principle
-  ✅ .specify/templates/tasks-template.md — Phase structure supports TDD and UX polish phases
+  ✅ .specify/templates/plan-template.md — Constitution Check gate is generic;
+     new auth/privacy/sync checks will surface automatically when plans are generated
+  ✅ .specify/templates/spec-template.md — FR-006 auth placeholder and security
+     FR examples already present; privacy and cross-device FRs should be added
+     when specifying features that involve authenticated user data
+  ✅ .specify/templates/tasks-template.md — T005 auth task and TXXX security
+     hardening task already present; cross-device/sync tasks should be added
+     per-feature as needed
+  ✅ .specify/templates/checklist-template.md — no principle-specific references;
+     no change required
+  ✅ .specify/templates/constitution-template.md — source template; no change required
+  ✅ .specify/templates/agent-file-template.md — no principle references; no change
 
-Follow-up TODOs: none — all placeholders resolved.
+Follow-up TODOs:
+  - 003-auth feature spec should be opened to implement Principle VI & VII
+  - localStorage-only storage strategy must be revisited under Principle VIII
+    before shipping to authenticated users
 -->
 
 # Todo App Constitution
@@ -105,6 +116,59 @@ The application MUST be usable by people regardless of ability, device, or conte
 **Rationale**: Accessibility is not a nice-to-have. Excluding users because of ability or
 context is a design failure. Building accessibly from the start is cheaper than retrofitting.
 
+### VI. Secure Authentication & Authorization
+
+User identity MUST be verified before granting access to any task data. Authorization checks
+MUST be enforced at the server boundary — UI-only enforcement is insufficient.
+
+- Authentication MUST use a proven, audited mechanism (OAuth 2.0, OpenID Connect, or a vetted
+  auth provider). Custom authentication protocols are prohibited.
+- Authorization MUST follow least-privilege: users MUST only access their own data.
+- Session tokens MUST be short-lived, rotated on privilege change, and invalidated on logout.
+- All authentication endpoints MUST be rate-limited to prevent brute-force attacks.
+- Client-side auth state MUST be treated as untrusted; all data mutations MUST be
+  re-validated server-side regardless of what the client claims.
+
+**Rationale**: Task data is personal and potentially sensitive. Authentication without
+server-side enforcement is theatre. A breach of user data violates trust and may carry
+legal consequences.
+
+### VII. User Privacy & Data Protection
+
+User data MUST be collected minimally, stored securely, and never shared without explicit
+informed consent.
+
+- Only data necessary to deliver the feature MUST be collected — no speculative data
+  gathering is permitted.
+- Task data MUST be encrypted at rest and in transit (TLS 1.2+ minimum for transport).
+- Users MUST be able to export and permanently delete all their data via a self-service
+  mechanism — no support-ticket required.
+- Third-party services that handle user data MUST be identified, justified, and covered by
+  a Data Processing Agreement before integration.
+- Personally identifiable information (PII) MUST NOT appear in logs, error messages,
+  analytics events, or crash reports.
+
+**Rationale**: Privacy is a user right, not a compliance checkbox. Building with privacy
+by default is cheaper than retrofitting, and builds lasting trust that is hard to recover
+once broken.
+
+### VIII. Cross-Device Continuity
+
+Users MUST experience consistent, up-to-date task state regardless of which device they use.
+
+- Task state MUST be persisted server-side for authenticated users; local storage MAY be
+  used as a read cache but MUST NOT be the sole source of truth.
+- Changes made on one device MUST be visible on another device within 30 seconds under
+  normal network conditions.
+- The UI MUST handle offline states gracefully: changes made offline MUST be queued and
+  synced automatically when connectivity is restored, with clear user feedback.
+- Conflict resolution for concurrent edits MUST follow a defined, documented strategy.
+  Silent data loss is never acceptable.
+
+**Rationale**: A task manager that fragments or loses data across devices is worse than a
+paper list. Users expect their tasks to follow them seamlessly between phone, tablet,
+and desktop.
+
 ## Code Quality Standards
 
 Consistent quality gates apply to every pull request and MUST be enforced in CI.
@@ -143,4 +207,4 @@ with these principles MUST be resolved in favour of the constitution.
 **Compliance reviews**: Constitution compliance is a mandatory criterion on every pull request.
 The "Constitution Check" gate in `plan.md` MUST be completed before implementation begins.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-11
+**Version**: 1.1.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-21

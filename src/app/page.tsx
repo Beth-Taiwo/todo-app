@@ -12,7 +12,9 @@ export default function OpenPage() {
     <div className={styles.page}>
       <h2 className={styles.pageTitle}>{t("pages.open")}</h2>
       <TaskForm />
-      <TaskList filter="open" />
+      <div className="mt-6">
+        <TaskList filter="open" />
+      </div>
     </div>
   );
 }

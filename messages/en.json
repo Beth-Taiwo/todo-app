@@ -35,5 +35,57 @@
 
   "pages.open": "Open Tasks",
   "pages.completed": "Completed Tasks",
-  "pages.archived": "Archived Tasks"
+  "pages.archived": "Archived Tasks",
+
+  "auth.register.heading": "Create an account",
+  "auth.register.emailLabel": "Email address",
+  "auth.register.emailPlaceholder": "you@example.com",
+  "auth.register.passwordLabel": "Password",
+  "auth.register.passwordPlaceholder": "At least 8 characters",
+  "auth.register.submitButton": "Create account",
+  "auth.register.loginPrompt": "Already have an account?",
+  "auth.register.loginLink": "Log in",
+  "auth.register.submitting": "Creating account…",
+
+  "auth.login.heading": "Log in",
+  "auth.login.emailLabel": "Email address",
+  "auth.login.emailPlaceholder": "you@example.com",
+  "auth.login.passwordLabel": "Password",
+  "auth.login.passwordPlaceholder": "Your password",
+  "auth.login.submitButton": "Log in",
+  "auth.login.registerPrompt": "Don't have an account?",
+  "auth.login.registerLink": "Sign up",
+  "auth.login.forgotPasswordLink": "Forgot password?",
+  "auth.login.submitting": "Logging in…",
+
+  "auth.logout.button": "Log out",
+  "auth.logout.ariaLabel": "Log out of your account",
+
+  "auth.forgotPassword.heading": "Reset your password",
+  "auth.forgotPassword.emailLabel": "Email address",
+  "auth.forgotPassword.emailPlaceholder": "you@example.com",
+  "auth.forgotPassword.submitButton": "Send reset link",
+  "auth.forgotPassword.sent": "If an account exists for that email, a reset link has been sent.",
+  "auth.forgotPassword.loginLink": "Back to log in",
+  "auth.forgotPassword.submitting": "Sending…",
+
+  "auth.resetPassword.heading": "Set new password",
+  "auth.resetPassword.passwordLabel": "New password",
+  "auth.resetPassword.passwordPlaceholder": "At least 8 characters",
+  "auth.resetPassword.submitButton": "Set new password",
+  "auth.resetPassword.success": "Password updated. You can now log in.",
+  "auth.resetPassword.invalidLink": "This reset link is invalid or has expired. Please request a new one.",
+  "auth.resetPassword.submitting": "Updating password…",
+
+  "auth.errors.emailInUse": "An account with this email already exists.",
+  "auth.errors.invalidEmail": "Please enter a valid email address.",
+  "auth.errors.weakPassword": "Password must be at least 8 characters and include a digit or symbol.",
+  "auth.errors.invalidCredentials": "Incorrect email or password.",
+  "auth.errors.generic": "Something went wrong. Please try again.",
+
+  "auth.nav.userLabel": "Logged in as",
+  "auth.importPrompt.heading": "Import existing tasks?",
+  "auth.importPrompt.body": "You have tasks saved on this device. Would you like to import them into your account?",
+  "auth.importPrompt.confirmButton": "Yes, import tasks",
+  "auth.importPrompt.declineButton": "No, start fresh"
 }

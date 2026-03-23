@@ -4,7 +4,8 @@ import { useState } from "react";
 import { t } from "@/lib/i18n";
 import { validateTitle } from "@/lib/taskValidation";
 import { useTaskContext } from "@/context/TaskContext";
-import styles from "./TaskForm.module.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function TaskForm() {
   const { addTask } = useTaskContext();
@@ -24,23 +25,23 @@ export default function TaskForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form} noValidate>
-      <h1 className={styles.heading}>{t("taskForm.heading")}</h1>
-      <div className={styles.row}>
-        <input
+    <form onSubmit={handleSubmit} noValidate>
+      <h1 className="mb-4 text-2xl font-bold tracking-tight">
+        {t("taskForm.heading")}
+      </h1>
+      <div className="flex gap-2">
+        <Input
           type="text"
-          className={styles.input}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("taskForm.inputPlaceholder")}
           aria-label={t("taskForm.inputAriaLabel")}
+          className="flex-1"
         />
-        <button type="submit" className={styles.submitButton}>
-          {t("taskForm.submitButton")}
-        </button>
+        <Button type="submit">{t("taskForm.submitButton")}</Button>
       </div>
       {error && (
-        <p role="alert" className={styles.error}>
+        <p role="alert" className="mt-2 text-sm text-destructive">
           {error}
         </p>
       )}

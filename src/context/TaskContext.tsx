@@ -6,17 +6,24 @@ import {
   useReducer,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 import type { Task } from "@/types/task";
-import type { TaskAction } from "@/types/task";
 import { taskReducer } from "@/lib/taskReducer";
 import { loadTasks, saveTasks } from "@/lib/taskStorage";
+import { createTask, getTasks, updateTask } from "@/lib/taskService";
+import { useAuthContext } from "@/context/AuthContext";
+import { t } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+
+const IMPORT_DONE_KEY = "todo-app:imported";
 
 interface TaskContextValue {
   openTasks: Task[];
   completedTasks: Task[];
   archivedTasks: Task[];
   editingTaskId: string | null;
+  importPromptVisible: boolean;
   addTask: (title: string, description: string) => void;
   updateTask: (id: string, title: string, description: string) => void;
   completeTask: (id: string) => void;
@@ -24,6 +31,8 @@ interface TaskContextValue {
   restoreTask: (id: string) => void;
   startEdit: (id: string) => void;
   cancelEdit: () => void;
+  confirmImport: () => Promise<void>;
+  declineImport: () => void;
 }
 
 const TaskContext = createContext<TaskContextValue | null>(null);
@@ -31,52 +40,182 @@ const TaskContext = createContext<TaskContextValue | null>(null);
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [tasks, dispatch] = useReducer(taskReducer, []);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const [importPromptVisible, setImportPromptVisible] = useState(false);
+  const [localAnonymousTasks, setLocalAnonymousTasks] = useState<Task[]>([]);
 
-  useEffect(() => {
-    dispatch({ type: "HYDRATE", payload: loadTasks() });
-    setHydrated(true);
-  }, []);
+  const { authState } = useAuthContext();
 
+  // Subscribe to Firestore when authenticated, fall back to localStorage when not
   useEffect(() => {
-    if (hydrated) {
+    if (authState.status === "loading") return;
+
+    if (authState.status === "unauthenticated") {
+      // Not logged in — use localStorage
+      dispatch({ type: "HYDRATE", payload: loadTasks() });
+      return;
+    }
+
+    // Authenticated — subscribe to Firestore real-time listener
+    const userId = authState.user.uid;
+    const unsubscribe = getTasks(userId, (firestoreTasks) => {
+      dispatch({ type: "HYDRATE", payload: firestoreTasks });
+    });
+
+    // Check for anonymous tasks to import (first login only)
+    const alreadyImported =
+      typeof window !== "undefined" &&
+      localStorage.getItem(IMPORT_DONE_KEY) === "true";
+
+    if (!alreadyImported) {
+      const anonymous = loadTasks().filter((t) => !t.userId || t.userId === "");
+      if (anonymous.length > 0) {
+        setLocalAnonymousTasks(anonymous);
+        setImportPromptVisible(true);
+      }
+    }
+
+    return () => unsubscribe();
+  }, [authState]);
+
+  // Keep localStorage in sync for unauthenticated state
+  useEffect(() => {
+    if (authState.status === "unauthenticated") {
       saveTasks(tasks);
     }
-  }, [tasks, hydrated]);
+  }, [tasks, authState.status]);
 
   const openTasks = tasks.filter((t) => t.status === "open");
   const completedTasks = tasks.filter((t) => t.status === "completed");
   const archivedTasks = tasks.filter((t) => t.status === "archived");
 
-  function dispatchAndEdit(action: TaskAction) {
-    dispatch(action);
+  function addTaskHandler(title: string, description: string) {
+    if (authState.status === "authenticated") {
+      const userId = authState.user.uid;
+      createTask(userId, { title, description }).then((task) => {
+        // Optimistic: Firestore onSnapshot will update state; dispatch for instant feedback
+        dispatch({ type: "ADD_TASK", payload: { title, description } });
+        void task;
+      });
+    } else {
+      dispatch({ type: "ADD_TASK", payload: { title, description } });
+    }
   }
+
+  function updateTaskHandler(id: string, title: string, description: string) {
+    dispatch({ type: "UPDATE_TASK", payload: { id, title, description } });
+    setEditingTaskId(null);
+    if (authState.status === "authenticated") {
+      const userId = authState.user.uid;
+      void updateTask(userId, id, { title, description });
+    }
+  }
+
+  function completeTaskHandler(id: string) {
+    dispatch({ type: "COMPLETE_TASK", payload: { id } });
+    if (authState.status === "authenticated") {
+      const userId = authState.user.uid;
+      void updateTask(userId, id, {
+        status: "completed",
+        completedAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  function archiveTaskHandler(id: string) {
+    dispatch({ type: "ARCHIVE_TASK", payload: { id } });
+    if (authState.status === "authenticated") {
+      const userId = authState.user.uid;
+      void updateTask(userId, id, {
+        status: "archived",
+        archivedAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  function restoreTaskHandler(id: string) {
+    dispatch({ type: "RESTORE_TASK", payload: { id } });
+    if (authState.status === "authenticated") {
+      const userId = authState.user.uid;
+      void updateTask(userId, id, {
+        status: "open",
+        completedAt: null,
+        archivedAt: null,
+      });
+    }
+  }
+
+  const confirmImport = useCallback(async () => {
+    if (authState.status !== "authenticated") return;
+    const userId = authState.user.uid;
+    // Mark done and close modal immediately — prevents the useEffect from
+    // re-triggering the prompt if Firestore listener fires during the import.
+    localStorage.setItem(IMPORT_DONE_KEY, "true");
+    setImportPromptVisible(false);
+    const tasksToImport = localAnonymousTasks;
+    setLocalAnonymousTasks([]);
+    for (const task of tasksToImport) {
+      await createTask(userId, {
+        title: task.title,
+        description: task.description,
+      });
+    }
+  }, [authState, localAnonymousTasks]);
+
+  const declineImport = useCallback(() => {
+    localStorage.setItem(IMPORT_DONE_KEY, "true");
+    setImportPromptVisible(false);
+    setLocalAnonymousTasks([]);
+  }, []);
 
   const value: TaskContextValue = {
     openTasks,
     completedTasks,
     archivedTasks,
     editingTaskId,
-    addTask: (title, description) =>
-      dispatchAndEdit({ type: "ADD_TASK", payload: { title, description } }),
-    updateTask: (id, title, description) => {
-      dispatchAndEdit({
-        type: "UPDATE_TASK",
-        payload: { id, title, description },
-      });
-      setEditingTaskId(null);
-    },
-    completeTask: (id) =>
-      dispatchAndEdit({ type: "COMPLETE_TASK", payload: { id } }),
-    archiveTask: (id) =>
-      dispatchAndEdit({ type: "ARCHIVE_TASK", payload: { id } }),
-    restoreTask: (id) =>
-      dispatchAndEdit({ type: "RESTORE_TASK", payload: { id } }),
+    importPromptVisible,
+    addTask: addTaskHandler,
+    updateTask: updateTaskHandler,
+    completeTask: completeTaskHandler,
+    archiveTask: archiveTaskHandler,
+    restoreTask: restoreTaskHandler,
     startEdit: (id) => setEditingTaskId(id),
     cancelEdit: () => setEditingTaskId(null),
+    confirmImport,
+    declineImport,
   };
 
-  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
+  return (
+    <TaskContext.Provider value={value}>
+      {importPromptVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("auth.importPrompt.heading")}
+            className="bg-card text-card-foreground mx-4 flex w-full max-w-sm flex-col gap-6 rounded-lg p-4 shadow-lg"
+          >
+            <div>
+              <h2 className="text-lg font-semibold">
+                {t("auth.importPrompt.heading")}
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm">
+                {t("auth.importPrompt.body")}
+              </p>
+            </div>
+            <div className="flex justify-center gap-2">
+              <Button variant="outline" onClick={declineImport}>
+                {t("auth.importPrompt.declineButton")}
+              </Button>
+              <Button onClick={() => void confirmImport()}>
+                {t("auth.importPrompt.confirmButton")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {children}
+    </TaskContext.Provider>
+  );
 }
 
 export function useTaskContext(): TaskContextValue {

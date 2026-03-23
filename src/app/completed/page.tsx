@@ -10,7 +10,9 @@ export default function CompletedPage() {
   return (
     <div className={styles.page}>
       <h2 className={styles.pageTitle}>{t("pages.completed")}</h2>
-      <TaskList filter="completed" />
+      <div className="mt-6">
+        <TaskList filter="completed" />
+      </div>
     </div>
   );
 }
